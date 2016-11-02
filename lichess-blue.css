@@ -6,10 +6,10 @@
 }
 
 .square.light.lastmove {
-  fill: #ced26b;
+  fill: #c3d889;
 }
 .square.dark.lastmove {
-  fill: #c3d889;
+  fill: #92b167;
 }
 
 .check {
