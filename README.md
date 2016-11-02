@@ -7,7 +7,7 @@ Usage
 -----
 
 ```
-python3 server.py [--port 8080] [--bind 127.0.0.1]
+python3 server.py [--port 8080] [--bind 127.0.0.1] [--css default.css]
 ```
 
 Installation
