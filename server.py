@@ -25,6 +25,10 @@ import aiohttp.web
 import chess
 import chess.svg
 import cairosvg
+import re
+
+
+DROP_REGEX = re.compile(r"^[PNBRQK]?@([a-h][1-8])$")
 
 
 class Service:
@@ -46,7 +50,11 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
 
         try:
-            lastmove = chess.Move.from_uci(request.GET["lastMove"])
+            uci = request.GET.get("lastMove") or request.GET["lastmove"]
+            m = DROP_REGEX.match(uci)
+            if m:
+                uci = m.group(1) + m.group(1)
+            lastmove = chess.Move.from_uci(uci)
         except KeyError:
             lastmove = None
         except ValueError:
