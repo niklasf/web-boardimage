@@ -1,12 +1,12 @@
 .square.light {
-  fill: #ffce9e;
+  fill: #f0d9b5;
 }
 .square.dark {
-  fill: #d18b47;
+  fill: #b58863;
 }
 
 .square.light.lastmove {
-  fill: #cdd16a;
+  fill: #ced26b;
 }
 .square.dark.lastmove {
   fill: #aaa23b;
