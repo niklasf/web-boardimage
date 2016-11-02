@@ -67,7 +67,9 @@ class Service:
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
 
-        return chess.svg.board(board, coordinates=False, lastmove=lastmove, check=check, size=size, style=self.css)
+        flipped = request.GET.get("orientation", "white") == "black"
+
+        return chess.svg.board(board, coordinates=False, flipped=flipped, lastmove=lastmove, check=check, size=size, style=self.css)
 
     @asyncio.coroutine
     def render_svg(self, request):
