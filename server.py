@@ -2,9 +2,10 @@ import asyncio
 import aiohttp.web
 import chess
 import chess.svg
+import cairosvg
 
 
-async def render_svg(request):
+def render_svg(request):
     try:
         board = chess.Board(request.GET["fen"])
     except KeyError:
@@ -12,13 +13,17 @@ async def render_svg(request):
     except ValueError:
         raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
 
-    return aiohttp.web.Response(
-        text=chess.svg.board(board, coordinates=False),
-        content_type="image/svg+xml")
+    return chess.svg.board(board, coordinates=False)
+
+
+async def render_png(request):
+    svg_data = render_svg(request)
+    buf = cairosvg.svg2png(bytestring=svg_data)
+    return aiohttp.web.Response(body=buf, content_type="image/png")
 
 
 if __name__ == "__main__":
     app = aiohttp.web.Application()
-    app.router.add_get("/", render_svg)
+    app.router.add_get("/", render_png)
 
     aiohttp.web.run_app(app)
