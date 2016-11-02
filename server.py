@@ -45,7 +45,7 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
 
         try:
-            size = min(max(int(request.GET.get("size", 300)), 16), 1024)
+            size = min(max(int(request.GET.get("size", 360)), 16), 1024)
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
 
