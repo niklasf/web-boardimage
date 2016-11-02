@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+"""HTTP service that renders chess board images"""
+
+import argparse
 import asyncio
 import aiohttp.web
 import chess
@@ -49,8 +54,13 @@ def render_png(request):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--port", "-p", default=8080, help="web server port")
+    parser.add_argument("--bind", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
+    args = parser.parse_args()
+
     app = aiohttp.web.Application()
     app.router.add_get("/board.png", render_png)
     app.router.add_get("/board.svg", render_svg)
 
-    aiohttp.web.run_app(app)
+    aiohttp.web.run_app(app, port=args.port, host=args.bind)
