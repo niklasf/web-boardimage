@@ -7,7 +7,8 @@ import cairosvg
 
 def make_svg(request):
     try:
-        board = chess.Board(request.GET["fen"])
+        parts = request.GET["fen"].split(" ", 1)
+        board = chess.BaseBoard(parts[0])
     except KeyError:
         raise aiohttp.web.HTTPBadRequest(reason="fen required")
     except ValueError:
@@ -16,31 +17,40 @@ def make_svg(request):
     try:
         size = min(max(int(request.GET.get("size", 100)), 16), 1024)
     except ValueError:
-        raise aiohttp.web.HTTPBadRequest(reason="size must be a number")
+        raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
 
-    lastmove = None
-    if "lastmove" in request.GET:
-        try:
-            lastmove = chess.Move.from_uci(request.GET["lastmove"])
-        except ValueError:
-            raise aiohttp.web.HTTPBadRequest(reason="lastmove not a valid uci move")
+    try:
+        lastmove = chess.Move.from_uci(request.GET["lastMove"])
+    except KeyError:
+        lastmove = None
+    except ValueError:
+        raise aiohttp.web.HTTPBadRequest(reason="lastMove is not a valid uci move")
 
-    return chess.svg.board(board, coordinates=False, lastmove=lastmove, size=size)
+    try:
+        check = chess.SQUARE_NAMES.index(request.GET["check"])
+    except KeyError:
+        check = None
+    except ValueError:
+        raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
+
+    return chess.svg.board(board, coordinates=False, lastmove=lastmove, check=check, size=size)
 
 
-async def render_svg(request):
+@asyncio.coroutine
+def render_svg(request):
     return aiohttp.web.Response(text=make_svg(request), content_type="image/svg+xml")
 
 
-async def render_png(request):
+@asyncio.coroutine
+def render_png(request):
     svg_data = make_svg(request)
-    buf = cairosvg.svg2png(bytestring=svg_data)
-    return aiohttp.web.Response(body=buf, content_type="image/png")
+    png_data = cairosvg.svg2png(bytestring=svg_data)
+    return aiohttp.web.Response(body=png_data, content_type="image/png")
 
 
 if __name__ == "__main__":
     app = aiohttp.web.Application()
-    app.router.add_get("/", render_png)
-    app.router.add_get("/svg", render_svg)
+    app.router.add_get("/board.png", render_png)
+    app.router.add_get("/board.svg", render_svg)
 
     aiohttp.web.run_app(app)
