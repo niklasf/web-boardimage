@@ -29,7 +29,7 @@ import cairosvg
 
 def make_svg(request):
     try:
-        parts = request.GET["fen"].split(" ", 1)
+        parts = request.GET["fen"].replace("_", "").replace("~", "").split(" ", 1)
         board = chess.BaseBoard(parts[0])
     except KeyError:
         raise aiohttp.web.HTTPBadRequest(reason="fen required")
