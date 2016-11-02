@@ -1,0 +1,17 @@
+.square.light {
+  fill: #dee3e6;
+}
+.square.dark {
+  fill: #8ca2ad;
+}
+
+.square.light.lastmove {
+  fill: #ced26b;
+}
+.square.dark.lastmove {
+  fill: #c3d889;
+}
+
+.check {
+  fill: url(#check_gradient);
+}
