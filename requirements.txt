@@ -7,7 +7,6 @@ chardet==2.3.0
 cssselect==1.0.0
 lxml==3.6.4
 multidict==2.1.2
-pkg-resources==0.0.0
 pycparser==2.17
 python-chess==0.15.4
 tinycss==0.4
