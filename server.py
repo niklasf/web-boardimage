@@ -84,7 +84,7 @@ class Service:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", "-p", default=8080, help="web server port")
+    parser.add_argument("--port", "-p", type=int, default=8080, help="web server port")
     parser.add_argument("--bind", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
     parser.add_argument("--css", type=argparse.FileType("r"))
     args = parser.parse_args()
