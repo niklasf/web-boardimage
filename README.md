@@ -16,7 +16,7 @@ Installation
 Requires Python 3.4+.
 
 ```
-sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev
+sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev libcairo2
 
 pip install -r requirements.txt
 ```
