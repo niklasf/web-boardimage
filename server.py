@@ -28,9 +28,6 @@ import cairosvg
 import re
 
 
-DROP_REGEX = re.compile(r"^[PNBRQK]?@([a-h][1-8])$")
-
-
 class Service:
     def __init__(self, css=None):
         self.css = css or chess.svg.DEFAULT_STYLE
@@ -51,9 +48,6 @@ class Service:
 
         try:
             uci = request.GET.get("lastMove") or request.GET["lastmove"]
-            m = DROP_REGEX.match(uci)
-            if m:
-                uci = m.group(1) + m.group(1)
             lastmove = chess.Move.from_uci(uci)
         except KeyError:
             lastmove = None
