@@ -37,7 +37,7 @@ class Service:
 
     def make_svg(self, request):
         try:
-            parts = request.GET["fen"].replace("_", "").replace("~", "").split(" ", 1)
+            parts = request.GET["fen"].replace("_", " ").split(" ", 1)
             board = chess.BaseBoard("/".join(parts[0].split("/")[0:8]))
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="fen required")
