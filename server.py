@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # web-boardimage is an HTTP service that renders chess board images.
-# Copyright (C) 2016 Niklas Fiekas <niklas.fiekas@backscattering.de>
+# Copyright (C) 2016-2017 Niklas Fiekas <niklas.fiekas@backscattering.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
