@@ -61,9 +61,14 @@ class Service:
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
 
+        try:
+            arrows = [arrow(s.strip()) for s in request.GET.get("arrows", "").split(",") if s.strip()]
+        except ValueError:
+            raise aiohttp.web.HTTPBadRequest(reason="invalid arrow")
+
         flipped = request.GET.get("orientation", "white") == "black"
 
-        return chess.svg.board(board, coordinates=False, flipped=flipped, lastmove=lastmove, check=check, size=size, style=self.css)
+        return chess.svg.board(board, coordinates=False, flipped=flipped, lastmove=lastmove, check=check, arrows=arrows, size=size, style=self.css)
 
     @asyncio.coroutine
     def render_svg(self, request):
@@ -74,6 +79,12 @@ class Service:
         svg_data = self.make_svg(request)
         png_data = cairosvg.svg2png(bytestring=svg_data)
         return aiohttp.web.Response(body=png_data, content_type="image/png")
+
+
+def arrow(s):
+    tail = chess.SQUARE_NAMES.index(s[:2])
+    head = chess.SQUARE_NAMES.index(s[2:]) if len(s) > 2 else tail
+    return chess.svg.Arrow(tail, head)
 
 
 if __name__ == "__main__":
