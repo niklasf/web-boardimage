@@ -30,7 +30,7 @@ import re
 
 class Service:
     def __init__(self, css=None):
-        self.css = css or chess.svg.DEFAULT_STYLE
+        self.css = css
 
     def make_svg(self, request):
         try:
