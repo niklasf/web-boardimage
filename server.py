@@ -34,7 +34,7 @@ class Service:
 
     def make_svg(self, request):
         try:
-            parts = request.GET["fen"].replace("_", " ").split(" ", 1)
+            parts = request.query["fen"].replace("_", " ").split(" ", 1)
             board = chess.BaseBoard("/".join(parts[0].split("/")[0:8]))
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="fen required")
@@ -42,12 +42,12 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
 
         try:
-            size = min(max(int(request.GET.get("size", 360)), 16), 1024)
+            size = min(max(int(request.query.get("size", 360)), 16), 1024)
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
 
         try:
-            uci = request.GET.get("lastMove") or request.GET["lastmove"]
+            uci = request.query.get("lastMove") or request.query["lastmove"]
             lastmove = chess.Move.from_uci(uci)
         except KeyError:
             lastmove = None
@@ -55,18 +55,18 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="lastMove is not a valid uci move")
 
         try:
-            check = chess.SQUARE_NAMES.index(request.GET["check"])
+            check = chess.SQUARE_NAMES.index(request.query["check"])
         except KeyError:
             check = None
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
 
         try:
-            arrows = [arrow(s.strip()) for s in request.GET.get("arrows", "").split(",") if s.strip()]
+            arrows = [arrow(s.strip()) for s in request.query.get("arrows", "").split(",") if s.strip()]
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="invalid arrow")
 
-        flipped = request.GET.get("orientation", "white") == "black"
+        flipped = request.query.get("orientation", "white") == "black"
 
         return chess.svg.board(board, coordinates=False, flipped=flipped, lastmove=lastmove, check=check, arrows=arrows, size=size, style=self.css)
 
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     app.router.add_get("/board.png", service.render_png)
     app.router.add_get("/board.svg", service.render_svg)
 
-    aiohttp.web.run_app(app, port=args.port, host=args.bind)
+    aiohttp.web.run_app(app, port=args.port, host=args.bind, access_log=None)

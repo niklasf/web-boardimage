@@ -1,3 +1,3 @@
-aiohttp==2.3.3
-python-chess==0.22.0
-CairoSVG==2.1.1
+aiohttp==3.2.1
+python-chess==0.23.5
+CairoSVG==2.1.3
