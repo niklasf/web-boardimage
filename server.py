@@ -35,7 +35,7 @@ def load_theme(name):
         return json.load(f)
 
 
-THEMES = {name: load_theme(name) for name in ["default", "lichess-blue", "lichess-brown"]}
+THEMES = {name: load_theme(name) for name in ["wikipedia", "lichess-blue", "lichess-brown"]}
 
 
 class Service:
@@ -82,7 +82,7 @@ class Service:
         coordinates = request.query.get("coordinates", "0") in ["", "1", "true", "True", "yes"]
 
         try:
-            colors = THEMES[request.query.get("colors", "default")]
+            colors = THEMES[request.query.get("colors", "lichess-brown")]
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="theme colors not found")
 
