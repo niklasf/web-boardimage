@@ -25,12 +25,13 @@ import aiohttp.web
 import chess
 import chess.svg
 import cairosvg
+import json
 import re
 
 
 class Service:
-    def __init__(self, css=None):
-        self.css = css
+    def __init__(self, theme={}):
+        self.theme = theme
 
     def make_svg(self, request):
         try:
@@ -82,7 +83,7 @@ class Service:
                                arrows=arrows,
                                squares=squares,
                                size=size,
-                               style=self.css)
+                               colors=self.theme)
 
     async def render_svg(self, request):
         return aiohttp.web.Response(text=self.make_svg(request), content_type="image/svg+xml")
@@ -97,11 +98,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", "-p", type=int, default=8080, help="web server port")
     parser.add_argument("--bind", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
-    parser.add_argument("--css", type=argparse.FileType("r"))
+    parser.add_argument("--theme", type=argparse.FileType("r"))
     args = parser.parse_args()
 
     app = aiohttp.web.Application()
-    service = Service(args.css.read() if args.css else None)
+    service = Service(json.load(args.theme) if args.theme else {})
     app.router.add_get("/board.png", service.render_png)
     app.router.add_get("/board.svg", service.render_svg)
 
