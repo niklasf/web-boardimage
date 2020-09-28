@@ -31,12 +31,13 @@ name | type | default | description
 **fen** | string | required | FEN of the position with at least the board part
 **orientation** | string | white | `white` or `black`
 **size** | int | 360 | The width and height of the image
-**lastMove** | string | *(none)* | The last move to highlight, e.g. `f4g6`
-**check** | string | *(none)* | A square to highlight for check, e.g. `h8`
-**arrows** | string | *(none)* | Draw arrows and circles, e.g. `e6g8,h7`
+**lastMove** | string | *(none)* | The last move to highlight, e.g., `f4g6`
+**check** | string | *(none)* | A square to highlight for check, e.g., `h8`
+**arrows** | string | *(none)* | Draw arrows and circles, e.g., `e6g8,h7`
+**squares** | string | *(none)* | Marked squares, e.g. `a3,c3`
 
 ```
-https://backscattering.de/web-boardimage/board.svg?fen=5r1k/1b4pp/3pB1N1/p2Pq2Q/PpP5/6PK/8/8&lastMove=f4g6&check=h8&arrows=e6g8,h7
+https://backscattering.de/web-boardimage/board.svg?fen=5r1k/1b4pp/3pB1N1/p2Pq2Q/PpP5/6PK/8/8&lastMove=f4g6&check=h8&arrows=e6g8,h7&squares=a3,c3
 ```
 
 ![example board image](https://backscattering.de/web-boardimage/board.svg?fen=5r1k/1b4pp/3pB1N1/p2Pq2Q/PpP5/6PK/8/8&lastMove=f4g6&check=h8&arrows=e6g8,h7)

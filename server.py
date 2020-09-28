@@ -65,6 +65,11 @@ class Service:
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="invalid arrow")
 
+        try:
+            squares = chess.SquareSet(chess.parse_square(s.strip()) for s in request.query.get("squares", "").split(",") if s.strip())
+        except ValueError:
+            raise aiohttp.web.HTTPBadRequest(reason="invalid squares")
+
         flipped = request.query.get("orientation", "white") == "black"
 
         return chess.svg.board(board,
@@ -73,6 +78,7 @@ class Service:
                                lastmove=lastmove,
                                check=check,
                                arrows=arrows,
+                               squares=squares,
                                size=size,
                                style=self.css)
 
