@@ -34,8 +34,7 @@ class Service:
 
     def make_svg(self, request):
         try:
-            parts = request.query["fen"].replace("_", " ").split(" ", 1)
-            board = chess.BaseBoard("/".join(parts[0].split("/")[0:8]))
+            board = chess.Board(request.query["fen"])
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="fen required")
         except ValueError:
@@ -55,7 +54,7 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="lastMove is not a valid uci move")
 
         try:
-            check = chess.SQUARE_NAMES.index(request.query["check"])
+            check = chess.parse_square(request.query["check"])
         except KeyError:
             check = None
         except ValueError:
@@ -68,22 +67,27 @@ class Service:
 
         flipped = request.query.get("orientation", "white") == "black"
 
-        return chess.svg.board(board, coordinates=False, flipped=flipped, lastmove=lastmove, check=check, arrows=arrows, size=size, style=self.css)
+        return chess.svg.board(board,
+                               coordinates=False,
+                               flipped=flipped,
+                               lastmove=lastmove,
+                               check=check,
+                               arrows=arrows,
+                               size=size,
+                               style=self.css)
 
-    @asyncio.coroutine
-    def render_svg(self, request):
+    async def render_svg(self, request):
         return aiohttp.web.Response(text=self.make_svg(request), content_type="image/svg+xml")
 
-    @asyncio.coroutine
-    def render_png(self, request):
+    async def render_png(self, request):
         svg_data = self.make_svg(request)
         png_data = cairosvg.svg2png(bytestring=svg_data)
         return aiohttp.web.Response(body=png_data, content_type="image/png")
 
 
 def arrow(s):
-    tail = chess.SQUARE_NAMES.index(s[:2])
-    head = chess.SQUARE_NAMES.index(s[2:]) if len(s) > 2 else tail
+    tail = chess.parse_square(s[:2])
+    head = chess.parse_square(s[2:]) if len(s) > 2 else tail
     return chess.svg.Arrow(tail, head)
 
 
