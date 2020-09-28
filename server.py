@@ -72,8 +72,10 @@ class Service:
 
         flipped = request.query.get("orientation", "white") == "black"
 
+        coordinates = request.query.get("coordinates", "0") in ["", "1", "true", "True", "yes"]
+
         return chess.svg.board(board,
-                               coordinates=False,
+                               coordinates=coordinates,
                                flipped=flipped,
                                lastmove=lastmove,
                                check=check,
