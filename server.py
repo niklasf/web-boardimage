@@ -61,7 +61,7 @@ class Service:
             raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
 
         try:
-            arrows = [arrow(s.strip()) for s in request.query.get("arrows", "").split(",") if s.strip()]
+            arrows = [chess.svg.Arrow.from_pgn(s.strip()) for s in request.query.get("arrows", "").split(",") if s.strip()]
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="invalid arrow")
 
@@ -91,12 +91,6 @@ class Service:
         svg_data = self.make_svg(request)
         png_data = cairosvg.svg2png(bytestring=svg_data)
         return aiohttp.web.Response(body=png_data, content_type="image/png")
-
-
-def arrow(s):
-    tail = chess.parse_square(s[:2])
-    head = chess.parse_square(s[2:]) if len(s) > 2 else tail
-    return chess.svg.Arrow(tail, head)
 
 
 if __name__ == "__main__":
