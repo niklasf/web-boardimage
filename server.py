@@ -26,13 +26,19 @@ import chess
 import chess.svg
 import cairosvg
 import json
+import os
 import re
 
 
-class Service:
-    def __init__(self, theme={}):
-        self.theme = theme
+def load_theme(name):
+    with open(os.path.join(os.path.dirname(__file__), f"{name}.json")) as f:
+        return json.load(f)
 
+
+THEMES = {name: load_theme(name) for name in ["default", "lichess-blue", "lichess-brown"]}
+
+
+class Service:
     def make_svg(self, request):
         try:
             board = chess.Board(request.query["fen"])
@@ -75,6 +81,11 @@ class Service:
 
         coordinates = request.query.get("coordinates", "0") in ["", "1", "true", "True", "yes"]
 
+        try:
+            colors = THEMES[request.query.get("colors", "default")]
+        except KeyError:
+            raise aiohttp.web.HTTPBadRequest(reason="theme colors not found")
+
         return chess.svg.board(board,
                                coordinates=coordinates,
                                flipped=flipped,
@@ -83,7 +94,7 @@ class Service:
                                arrows=arrows,
                                squares=squares,
                                size=size,
-                               colors=self.theme)
+                               colors=colors)
 
     async def render_svg(self, request):
         return aiohttp.web.Response(text=self.make_svg(request), content_type="image/svg+xml")
@@ -98,11 +109,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", "-p", type=int, default=8080, help="web server port")
     parser.add_argument("--bind", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
-    parser.add_argument("--theme", type=argparse.FileType("r"))
     args = parser.parse_args()
 
     app = aiohttp.web.Application()
-    service = Service(json.load(args.theme) if args.theme else {})
+    service = Service()
     app.router.add_get("/board.png", service.render_png)
     app.router.add_get("/board.svg", service.render_svg)
 
