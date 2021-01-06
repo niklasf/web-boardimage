@@ -3,13 +3,6 @@ web-boardimage
 
 An HTTP service that renders chess board images.
 
-Usage
------
-
-```
-python3 server.py [--port 8080] [--bind 127.0.0.1]
-```
-
 Installation
 ------------
 
@@ -17,9 +10,16 @@ Requires Python 3.7+.
 
 ```
 sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev libcairo2
-
-pip install -r requirements.txt
+pipenv install
 ```
+
+Usage
+-----
+
+```
+pipenv run server [--port 8080] [--bind 127.0.0.1]
+```
+
 
 HTTP API
 --------
