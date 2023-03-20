@@ -6,7 +6,7 @@ verify_ssl = true
 [packages]
 aiohttp = "~=3.8.3"
 chess = "~=1.9.3"
-CairoSVG = "~=2.5.2"
+CairoSVG = "~=2.7.0"
 
 [scripts]
 server = "python server.py"
