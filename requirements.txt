@@ -1,0 +1,4 @@
+aiohttp==3.9.5
+cairoSVG==2.7.1
+lxml==4.9.3
+svgutils @ git+https://github.com/gbtami/svg_utils@master
