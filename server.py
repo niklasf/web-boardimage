@@ -20,14 +20,12 @@
 """An HTTP service that renders chess board images"""
 
 import argparse
-import asyncio
 import aiohttp.web
-import chess
-import chess.svg
+import pychess
+import pychess_svg
 import cairosvg
 import json
 import os
-import re
 
 
 def load_theme(name):
@@ -40,40 +38,48 @@ THEMES = {name: load_theme(name) for name in ["wikipedia", "lichess-blue", "lich
 
 class Service:
     def make_svg(self, request):
+        css = request.query.get("css", "standard_standard").replace("_", "/")
+        fen = request.query["fen"].replace(".", "+")
+        print(css, fen)
         try:
-            board = chess.Board(request.query["fen"])
+            board = pychess.Board(fen, css)
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="fen required")
-        except ValueError:
-            raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
+        #except ValueError:
+        #    raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
 
         try:
-            size = min(max(int(request.query.get("size", 360)), 16), 1024)
+            width = min(max(int(request.query.get("width", 360)), 16), 1024)
         except ValueError:
-            raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
+            raise aiohttp.web.HTTPBadRequest(reason="width is not a number")
+
+        try:
+            height = min(max(int(request.query.get("height", 360)), 16), 1024)
+        except ValueError:
+            raise aiohttp.web.HTTPBadRequest(reason="height is not a number")
 
         try:
             uci = request.query.get("lastMove") or request.query["lastmove"]
-            lastmove = chess.Move.from_uci(uci)
+            lastmove = pychess.Move.from_uci(uci)
         except KeyError:
             lastmove = None
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="lastMove is not a valid uci move")
 
         try:
-            check = chess.parse_square(request.query["check"])
+            check = request.query["check"]
         except KeyError:
             check = None
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="check is not a valid square name")
 
         try:
-            arrows = [chess.svg.Arrow.from_pgn(s.strip()) for s in request.query.get("arrows", "").split(",") if s.strip()]
+            arrows = [pychess.Arrow.from_pgn(s.strip()) for s in request.query.get("arrows", "").split(",") if s.strip()]
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="invalid arrow")
 
         try:
-            squares = chess.SquareSet(chess.parse_square(s.strip()) for s in request.query.get("squares", "").split(",") if s.strip())
+            squares = [s.strip() for s in request.query.get("squares", "").split(",") if s.strip()]
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="invalid squares")
 
@@ -86,15 +92,19 @@ class Service:
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="theme colors not found")
 
-        return chess.svg.board(board,
-                               coordinates=coordinates,
-                               flipped=flipped,
-                               lastmove=lastmove,
-                               check=check,
-                               arrows=arrows,
-                               squares=squares,
-                               size=size,
-                               colors=colors)
+        return pychess_svg.board(
+            css,
+            board,
+            coordinates=coordinates,
+            flipped=flipped,
+            lastmove=lastmove,
+            check=check,
+            arrows=arrows,
+            squares=squares,
+            width=width,
+            height=height,
+            colors=colors,
+        )
 
     async def render_svg(self, request):
         return aiohttp.web.Response(text=self.make_svg(request), content_type="image/svg+xml")
