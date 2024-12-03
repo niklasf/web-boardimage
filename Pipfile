@@ -4,8 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-aiohttp = "~=3.9.5"
-chess = "~=1.10.0"
+aiohttp = "~=3.11.9"
+chess = "~=1.11.1"
 CairoSVG = "~=2.7.1"
 
 [scripts]
