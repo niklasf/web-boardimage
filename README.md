@@ -6,7 +6,7 @@ An HTTP service that renders chess board images.
 Installation
 ------------
 
-Requires Python 3.7+.
+Requires Python and pipenv:
 
 ```
 sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev libcairo2
