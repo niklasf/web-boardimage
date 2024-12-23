@@ -6,20 +6,19 @@ An HTTP service that renders chess board images.
 Installation
 ------------
 
-Requires Python and pipenv:
+Requires Python and poetry:
 
 ```
 sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev libcairo2
-pipenv install
+poetry install
 ```
 
 Usage
 -----
 
 ```
-pipenv run server [--port 8080] [--bind 127.0.0.1]
+poetry run python server.py [--port 8080] [--bind 127.0.0.1]
 ```
-
 
 HTTP API
 --------

@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "web-boardimage"
+package-mode = false
+description = "An HTTP service that renders chess board images"
+authors = ["Niklas Fiekas <niklas.fiekas@backscattering.de>"]
+readme = "README.md"
+
+[[tool.poetry.packages]]
+include = "server.py"
+
+[tool.poetry.dependencies]
+aiohttp = "^3.11.11"
+chess = "^1.11.1"
+CairoSVG = "^2.7.1"
+python = "^3.9"
