@@ -221,7 +221,7 @@ def piece(css, piece, size=None):
     Renders the given :class:`pychess.Piece` as an SVG image.
     """
     svg = _svg(SQUARE_SIZE, SQUARE_SIZE, size, size)
-    svg.append(ET.fromstring(SVG_PIECES[css][piece.symbol()]))
+    svg.append(ET.fromstring(SVG_PIECES[css][piece.symbol]))
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
