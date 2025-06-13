@@ -39,6 +39,7 @@ name | type | default | description
 **coordinates** | bool | *false* | Show a coordinate margin
 **colors** | string | lichess-brown | Theme: `wikipedia`, `lichess-brown`, `lichess-blue`
 **css** | string | standard_standard | Piece set CSS
+**background_image** | string | *(none)* | Optional board background image (PNG, JPG, or SVG). If a filename ending in .svg, the SVG is embedded and scaled; if PNG/JPG, the image is embedded as a base64 data URI. Example: `wood1.png` or `pattern.svg`.
 
 ```
 https://backscattering.de/web-boardimage/board.svg?fen=5r1k/1b4pp/3pB1N1/p2Pq2Q/PpP5/6PK/8/8&lastMove=f4g6&check=h8&arrows=Ge6g8,Bh7&squares=a3,c3

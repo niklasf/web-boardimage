@@ -66,10 +66,10 @@ class Piece:
             return cls(PIECE_LETTERS.index(letter.lower()), WHITE)
 
     def __repr__(self):
-        return self.symbol()
+        return self.symbol
 
     def __str__(self):
-        return self.symbol()
+        return self.symbol
 
 
 class Move:

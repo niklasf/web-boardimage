@@ -38,9 +38,10 @@ THEMES = {name: load_theme(name) for name in ["wikipedia", "lichess-blue", "lich
 
 class Service:
     def make_svg(self, request):
-        css = request.query.get("css", "standard_standard").replace("_", "/")
+        css = request.query.get("css", "standard_standard").replace("_", "/", 1)
         fen = request.query["fen"].replace(".", "+")
-        print(css, fen)
+        background_image = request.query.get("background_image")
+        print(css, fen, background_image)
         try:
             board = pychess.Board(fen, css)
         except KeyError:
@@ -104,6 +105,7 @@ class Service:
             width=width,
             height=height,
             colors=colors,
+            background_image=background_image,
         )
 
     async def render_svg(self, request):
@@ -111,6 +113,8 @@ class Service:
 
     async def render_png(self, request):
         svg_data = self.make_svg(request)
+        if isinstance(svg_data, str):
+            svg_data = svg_data.encode("utf-8")
         png_data = cairosvg.svg2png(bytestring=svg_data)
         return aiohttp.web.Response(body=png_data, content_type="image/png")
 

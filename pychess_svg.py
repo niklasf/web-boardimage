@@ -1,7 +1,6 @@
 import pychess
 import math
 import os
-from os.path import expanduser
 from typing import Dict, Tuple, Union
 
 import svgutils
@@ -225,7 +224,16 @@ def piece(css, piece, size=None):
     return SvgWrapper(ET.tostring(svg).decode("utf-8"))
 
 
-def board(css, board=None, orientation=True, flipped=False, check=None, lastmove=None, arrows=(), squares=None, width=None, height=None, colors=None, coordinates=False, borders=False):
+def _colors_to_css(colors: Dict[str, str]) -> str:
+    """Convert a color mapping dictionary into a CSS string."""
+    lines = []
+    for selector, value in colors.items():
+        classes = "." + ".".join(selector.split())
+        lines.append(f"{classes} {{ fill: {value}; }}")
+    return "\n".join(lines)
+
+
+def board(css, board=None, orientation=True, flipped=False, check=None, lastmove=None, arrows=(), squares=None, width=None, height=None, colors=None, coordinates=False, borders=False, background_image=None):
     orientation ^= flipped
     inner_border = 1 if borders and coordinates else 0
     outer_border = 1 if borders else 0
@@ -234,7 +242,7 @@ def board(css, board=None, orientation=True, flipped=False, check=None, lastmove
 
     svg = _svg(board.cols * SQUARE_SIZE, board.rows * SQUARE_SIZE, width, height)
     if colors:
-        ET.SubElement(svg, "style").text = str(colors)
+        ET.SubElement(svg, "style").text = _colors_to_css(colors)
 
     if lastmove:
         lastmove_from = (board.rows - square_rank(lastmove.from_square) - 1, square_file(lastmove.from_square))
@@ -253,42 +261,134 @@ def board(css, board=None, orientation=True, flipped=False, check=None, lastmove
         check_rank_index = board.rows - square_rank(check) - 1
         check_file_index = square_file(check)
 
-    # Render board
-    for y_index in range(board.rows):
-        for x_index in range(board.cols):
-            x = (x_index) * SQUARE_SIZE + margin
-            y = (y_index) * SQUARE_SIZE + margin
+    # Render board background image if provided
+    if background_image:
+        if background_image.lower().endswith('.svg'):
+            # Embed SVG background directly
+            bg_path = os.path.join('pychess-variants/static/images/board', background_image)
+            try:
+                with open(bg_path, 'r', encoding='utf-8') as f:
+                    bg_svg = f.read()
+                # Remove XML declaration if present
+                if bg_svg.startswith('<?xml'):
+                    bg_svg = bg_svg.split('?>', 1)[-1]
+                # Parse the SVG and extract width/height or viewBox
+                bg_tree = ET.fromstring(bg_svg)
+                if bg_tree.tag.endswith('svg'):
+                    width = bg_tree.get('width')
+                    height = bg_tree.get('height')
+                    viewBox = bg_tree.get('viewBox')
+                    if width and height:
+                        try:
+                            width_val = float(width.replace('px',''))
+                            height_val = float(height.replace('px',''))
+                        except Exception:
+                            width_val = board.cols * SQUARE_SIZE
+                            height_val = board.rows * SQUARE_SIZE
+                    elif viewBox:
+                        parts = viewBox.strip().split()
+                        width_val = float(parts[2])
+                        height_val = float(parts[3])
+                    else:
+                        width_val = board.cols * SQUARE_SIZE
+                        height_val = board.rows * SQUARE_SIZE
+                    # Remove <svg> wrapper, keep children
+                    bg_inner = list(bg_tree)
+                    bg_group = ET.Element('g')
+                    for elem in bg_inner:
+                        bg_group.append(elem)
+                    scale_x = (board.cols * SQUARE_SIZE) / width_val
+                    scale_y = (board.rows * SQUARE_SIZE) / height_val
+                    bg_group.set('transform', f'translate({margin}, {margin}) scale({scale_x}, {scale_y})')
+                    svg.insert(1, bg_group)
+                else:
+                    # fallback: insert as a group
+                    bg_elem = ET.fromstring(f'<g>{bg_svg}</g>')
+                    svg.insert(1, bg_elem)
+            except Exception as e:
+                print(f"ERROR: Could not embed SVG background: {e}")
+        else:
+            # Use <image> for PNG/JPG, embed as data URI
+            import base64
+            img_path = os.path.join('pychess-variants/static/images/board', background_image)
+            try:
+                with open(img_path, 'rb') as img_file:
+                    img_bytes = img_file.read()
+                ext = os.path.splitext(background_image)[1].lower()
+                if ext == '.jpg' or ext == '.jpeg':
+                    mime = 'image/jpeg'
+                elif ext == '.png':
+                    mime = 'image/png'
+                else:
+                    mime = 'application/octet-stream'
+                data_uri = f"data:{mime};base64," + base64.b64encode(img_bytes).decode('ascii')
+                ET.SubElement(svg, "image", {
+                    "{http://www.w3.org/1999/xlink}href": data_uri,
+                    "x": str(margin),
+                    "y": str(margin),
+                    "width": str(board.cols * SQUARE_SIZE),
+                    "height": str(board.rows * SQUARE_SIZE),
+                    "preserveAspectRatio": "none"
+                })
+            except Exception as e:
+                print(f"ERROR: Could not embed PNG/JPG background: {e}")
+        render_squares = False
+    else:
+        render_squares = True
 
-            cls = ["square", "light" if x_index % 2 == y_index % 2 else "dark"]
-            if lastmove and (y_index, x_index) in (lastmove_from, lastmove_to):
-                cls.append("lastmove")
-            fill_color = DEFAULT_COLORS[" ".join(cls)]
+    # Render board squares only if not using a background image
+    if render_squares:
+        for y_index in range(board.rows):
+            for x_index in range(board.cols):
+                if orientation:
+                    display_row = y_index
+                    display_col = x_index
+                else:
+                    display_row = board.rows - y_index - 1
+                    display_col = board.cols - x_index - 1
+                x = (x_index) * SQUARE_SIZE + margin
+                y = (y_index) * SQUARE_SIZE + margin
 
-            ET.SubElement(svg, "rect", {
-                "x": str(x),
-                "y": str(y),
-                "width": str(SQUARE_SIZE),
-                "height": str(SQUARE_SIZE),
-                "class": " ".join(cls),
-                "stroke": "none",
-                "fill": fill_color,
-            })
+                cls = ["square", "light" if display_col % 2 == display_row % 2 else "dark"]
+                if lastmove and (display_row, display_col) in (lastmove_from, lastmove_to):
+                    cls.append("lastmove")
+                fill_color = DEFAULT_COLORS[" ".join(cls)]
 
-            # Render selected squares.
-            if (y_index, x_index) in parse_squares(board, squares):
-                ET.SubElement(svg, "use", _attrs({
-                    "href": "#xx",
-                    "xlink:href": "#xx",
-                    "x": x,
-                    "y": y,
-                }))
+                ET.SubElement(svg, "rect", {
+                    "x": str(x),
+                    "y": str(y),
+                    "width": str(SQUARE_SIZE),
+                    "height": str(SQUARE_SIZE),
+                    "class": " ".join(cls),
+                    "stroke": "none",
+                    "fill": fill_color,
+                })
 
-            # Render piece
-            if board is not None:
-                piece = board.piece_at(y_index, x_index)
+                # Render selected squares.
+                if (display_row, display_col) in parse_squares(board, squares):
+                    ET.SubElement(svg, "use", _attrs({
+                        "href": "#xx",
+                        "xlink:href": "#xx",
+                        "x": x,
+                        "y": y,
+                    }))
+
+    # Render pieces
+    if board is not None:
+        for y_index in range(board.rows):
+            for x_index in range(board.cols):
+                if orientation:
+                    display_row = y_index
+                    display_col = x_index
+                else:
+                    display_row = board.rows - y_index - 1
+                    display_col = board.cols - x_index - 1
+                x = x_index * SQUARE_SIZE + margin
+                y = y_index * SQUARE_SIZE + margin
+                piece = board.piece_at(display_row, display_col)
                 if piece:
                     # Render check mark.
-                    if (check is not None) and check_file_index == x_index and check_rank_index == y_index:
+                    if (check is not None) and check_file_index == display_col and check_rank_index == display_row:
                         ET.SubElement(svg, "rect", _attrs({
                             "x": x,
                             "y": y,
