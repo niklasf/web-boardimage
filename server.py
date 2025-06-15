@@ -86,7 +86,11 @@ class Service:
 
         flipped = request.query.get("orientation", "white") == "black"
 
-        coordinates = request.query.get("coordinates", "0") in ["", "1", "true", "True", "yes"]
+        coordinates = request.query.get("coordinates", False)
+        if coordinates in ["", "1", "true", "True", "yes"]:
+            coordinates = "standard"
+        if coordinates and coordinates not in pychess.COORDS:
+            raise aiohttp.web.HTTPBadRequest(reason="invalid coordinates")
 
         try:
             colors = THEMES[request.query.get("colors", "lichess-brown")]

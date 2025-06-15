@@ -8,6 +8,20 @@ PIECE_TYPES = range(len(string.ascii_lowercase))
 PIECE_LETTERS = string.ascii_lowercase
 
 
+def default_file_label(index, cols, orientation):
+    # Standard: a-h, i.e., 0 -> 'a', 1 -> 'b', ...
+    if orientation:
+        return chr(ord('a') + index)
+    else:
+        return chr(ord('a') + (cols - index - 1))
+
+COORDS = {
+    "standard": (lambda i, n: chr(ord('a') + i), lambda i, n: str(n - i)),
+    "shogi": (lambda i, n: str(n - i), lambda i, n: str(i + 1)),
+    "janggi": (lambda i, n: str(i + 1), lambda i, n: str((i + 1) % 10)),
+}
+
+
 class Arrow:
     def __init__(self, tail, head, color="green"):
         self.tail = tail

@@ -36,7 +36,7 @@ name | type | default | description
 **check** | string | *(none)* | A square to highlight for check, e.g., `h8`
 **arrows** | string | *(none)* | Draw arrows and circles, e.g., `Ge6g8,Bh7`, possible color prefixes: `G`, `B`, `R`, `Y`
 **squares** | string | *(none)* | Marked squares, e.g., `a3,c3`
-**coordinates** | bool | *false* | Show a coordinate margin
+**coordinates** | string | *(none)* | Coordinates: `standard`, `shogi`, `janggi`
 **colors** | string | lichess-brown | Theme: `wikipedia`, `lichess-brown`, `lichess-blue`
 **css** | string | standard_standard | Piece set CSS
 **background_image** | string | *(none)* | Optional board background image (PNG, JPG, or SVG). If a filename ending in .svg, the SVG is embedded and scaled; if PNG/JPG, the image is embedded as a base64 data URI. Example: `wood1.png` or `pattern.svg`.
