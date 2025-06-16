@@ -138,7 +138,7 @@ class Board:
         if css not in SVG_PIECES:
             get_svg_pieces_from_css(css)
 
-        fen = fen.strip()
+        fen = fen.split()[0].strip()  # Ignore any additional FEN parts
         rows = fen.split("/")
 
         # Clear the board.
