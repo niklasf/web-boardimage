@@ -49,13 +49,17 @@ class Service:
         #except ValueError:
         #    raise aiohttp.web.HTTPBadRequest(reason="invalid fen")
 
+        # Handle 'size' parameter for square images, fallback to width/height
         try:
-            width = min(max(int(request.query.get("width", 360)), 16), 1024)
+            size = min(max(int(request.query.get("size", 360)), 16), 1024)
+        except ValueError:
+            raise aiohttp.web.HTTPBadRequest(reason="size is not a number")
+        try:
+            width = min(max(int(request.query.get("width", size)), 16), 1024)
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="width is not a number")
-
         try:
-            height = min(max(int(request.query.get("height", 360)), 16), 1024)
+            height = min(max(int(request.query.get("height", size)), 16), 1024)
         except ValueError:
             raise aiohttp.web.HTTPBadRequest(reason="height is not a number")
 
