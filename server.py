@@ -101,6 +101,9 @@ class Service:
         except KeyError:
             raise aiohttp.web.HTTPBadRequest(reason="theme colors not found")
 
+        # Handle rotate_opponent parameter
+        rotate_opponent = request.query.get("rotate_opponent", "false").lower() in ["1", "true", "yes"]
+
         return pychess_svg.board(
             css,
             board,
@@ -114,6 +117,7 @@ class Service:
             height=height,
             colors=colors,
             background_image=background_image,
+            rotate_opponent=rotate_opponent,
         )
 
     async def render_svg(self, request):

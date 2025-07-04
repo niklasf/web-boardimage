@@ -237,7 +237,7 @@ def get_coord_svg(label, x, y, size, color, opacity=1.0):
     return group
 
 
-def board(css, board=None, orientation=True, flipped=False, check=None, lastmove=None, arrows=(), squares=None, width=None, height=None, colors=None, coordinates=False, borders=False, background_image=None):
+def board(css, board=None, orientation=True, flipped=False, check=None, lastmove=None, arrows=(), squares=None, width=None, height=None, colors=None, coordinates=False, borders=False, background_image=None, rotate_opponent=False):
     orientation ^= flipped
     inner_border = 1 if borders and coordinates else 0
     outer_border = 1 if borders else 0
@@ -441,9 +441,19 @@ def board(css, board=None, orientation=True, flipped=False, check=None, lastmove
 
                     color = pychess.COLOR_NAMES[piece.color]
                     href = "#%s-%s-piece" % (color, piece.symbol)
+                    # Apply 180-degree rotation to opponent pieces if requested
+                    transform = f"translate({x}, {y})"
+                    if rotate_opponent:
+                        # Determine if this is an opponent piece (relative to orientation)
+                        is_opponent = (piece.color != (1 if orientation else 0))
+                        if is_opponent:
+                            # Center of the square
+                            cx = x + SQUARE_SIZE / 2
+                            cy = y + SQUARE_SIZE / 2
+                            transform = f"translate({cx},{cy}) rotate(180) translate({-SQUARE_SIZE/2},{-SQUARE_SIZE/2})"
                     ET.SubElement(svg, "use", {
                         "xlink:href": href,
-                        "transform": "translate(%d, %d)" % (x, y),
+                        "transform": transform,
                     })
 
     # Render arrows.
