@@ -33,6 +33,8 @@ DEFAULT_COLORS = {
     "arrow red": "#88202080",
     "arrow yellow": "#e68f00b3",
     "arrow blue": "#00308880",
+    "arrow white": "#FFFFFF80",
+    "arrow black": "#00000080",
 }
 
 
@@ -494,7 +496,7 @@ def board(css, board=None, orientation=True, flipped=False, check=None, lastmove
                 "class": "circle",
             }))
         else:
-            marker_size = 0.75 * SQUARE_SIZE
+            marker_size = 0.6 * SQUARE_SIZE
             marker_margin = 0.1 * SQUARE_SIZE
 
             dx, dy = xhead - xtail, yhead - ytail

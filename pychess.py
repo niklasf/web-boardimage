@@ -42,6 +42,12 @@ class Arrow:
         elif pgn.startswith("B"):
             color = "blue"
             pgn = pgn[1:]
+        elif pgn.startswith("W"):
+            color = "white"
+            pgn = pgn[1:]
+        elif pgn.startswith("K"):
+            color = "black"
+            pgn = pgn[1:]
         else:
             color = "green"
 
