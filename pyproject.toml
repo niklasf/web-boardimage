@@ -9,7 +9,7 @@ readme = "README.md"
 include = "server.py"
 
 [tool.poetry.dependencies]
-aiohttp = "^3.11.11"
+aiohttp = "^3.12.14"
 chess = "^1.11.1"
 CairoSVG = "^2.7.1"
 python = "^3.9"
