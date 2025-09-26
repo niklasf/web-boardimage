@@ -31,7 +31,7 @@ import re
 
 
 def load_theme(name):
-    with open(os.path.join(os.path.dirname(__file__), f"{name}.json")) as f:
+    with open(os.path.join(os.path.dirname(__file__), "themes", f"{name}.json")) as f:
         return json.load(f)
 
 
