@@ -795,9 +795,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.12.15,<4" },
-    { name = "cairosvg", specifier = ">=2.8.2,<3" },
-    { name = "chess", specifier = ">=1.11.2,<2" },
+    { name = "aiohttp", specifier = "~=3.12.15" },
+    { name = "cairosvg", specifier = "~=2.8.2" },
+    { name = "chess", specifier = "~=1.11.2" },
 ]
 
 [[package]]

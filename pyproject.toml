@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "aiohttp>=3.12.15,<4",
-    "chess>=1.11.2,<2",
-    "CairoSVG>=2.8.2,<3",
+    "aiohttp~=3.12.15",
+    "chess~=1.11.2",
+    "CairoSVG~=2.8.2",
 ]
