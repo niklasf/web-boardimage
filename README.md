@@ -6,18 +6,17 @@ An HTTP service that renders chess board images.
 Installation
 ------------
 
-Requires Python and poetry:
+Requires Python, [uv](https://docs.astral.sh/uv/), and these libraries:
 
 ```
 sudo apt-get install python3-dev libffi-dev libxml2-dev libxslt1-dev libcairo2
-poetry install
 ```
 
 Usage
 -----
 
 ```
-poetry run python server.py [--port 8080] [--bind 127.0.0.1]
+uv run python server.py [--port 8080] [--bind 127.0.0.1]
 ```
 
 HTTP API
