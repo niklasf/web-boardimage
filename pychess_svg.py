@@ -1,6 +1,7 @@
 import pychess
 import math
 import os
+from importlib import resources
 from typing import Dict, Tuple, Union
 
 import svgutils
@@ -38,17 +39,25 @@ DEFAULT_COLORS = {
 }
 
 
-STATIC_PATH = "pychess-variants/static/"
-
-
 def get_svg_pieces_from_css(css):
     SVG_PIECES[css] = {}
     SVG_PATH_PIECES[css] = {}
-    css_path = os.path.join(STATIC_PATH, "piece", css + ".css")
-    if not os.path.isfile(css_path):
-        print("ERROR: FileNotFoundError %s" % css_path)
+
+    try:
+        variant, css_file = css.split("/")
+    except ValueError:
+        print("ERROR: ValueError on splitting %s" % css)
+        print("variant and css have to be concatenated with underscore. F.e. janggi_janggiikaw")
         return
-    with open(css_path) as css_file:
+
+    css_file += ".css"
+    css_path = resources.files("pychess_data.static.piece.%s" % variant) / css_file
+
+    if not css_path.is_file():
+        print("ERROR: FileNotFoundError %s" % css_file)
+        return
+
+    with css_path.open('r', encoding='utf-8') as css_file:
         color, symbol, url = "", "", ""
         promoted = False
         for line in css_file:
@@ -100,44 +109,54 @@ def read_piece_svg(css, piece):
 
     piece_svg = SVG_PATH_PIECES[css][symbol]
 
-    orig_file = os.path.normpath(os.path.join(STATIC_PATH, "piece", css, "..", piece_svg))
-    if not os.path.isfile(orig_file):
-        print("ERROR: FileNotFoundError %s" % orig_file)
+    url_parts = piece_svg.removeprefix("../../images/pieces/").split("/")
+    path_elements = 'pychess_data.static.images.pieces'.split(".")
+    for elem in url_parts[:-1]:
+        path_elements.append(elem)
+    piece_svg = url_parts[-1]
+
+    if not piece_svg.endswith("svg"):
+        print("ERROR: %s is not in .svg format" % piece_svg)
         return
 
-    if orig_file[-3:] != "svg":
-        print("ERROR: %s is not in .svg format" % orig_file)
+    svg_res = resources.files(".".join(path_elements)) / piece_svg
+
+    if not svg_res.is_file():
+        print("ERROR: FileNotFoundError %s" % piece_svg)
         return
 
-    # This can read "viewBox" but can't do scale()
-    svg_full = svgutils.transform.fromfile(orig_file)
+    # Expose it as a real file path temporarily
+    with resources.as_file(svg_res) as orig_file:
 
-    viewBox = svg_full.root.get("viewBox")
+        # This can read "viewBox" but can't do scale()
+        svg_full = svgutils.transform.fromfile(orig_file)
 
-    # This can't read "viewBox" but can do scale()
-    try:
-        svg = svgutils.compose.SVG(orig_file)
-    except AttributeError:
-        print("ERROR: Possible %s referenced in %s.css has no 'width/height'" % (orig_file, css))
-        # TODO: add "width/height" to .svg
-        raise
+        viewBox = svg_full.root.get("viewBox")
 
-    if viewBox is not None:
-        width = float(viewBox.split()[2])
-    elif svg.width is not None:
-        width = svg.width
-    else:
-        SVG_PIECES[css][symbol] = ""
-        return
+        # This can't read "viewBox" but can do scale()
+        try:
+            svg = svgutils.compose.SVG(orig_file)
+        except AttributeError:
+            print("ERROR: Possible %s referenced in %s.css has no 'width/height'" % (orig_file, css))
+            # TODO: add "width/height" to .svg
+            raise
 
-    if width != SQUARE_SIZE:
-        new = SQUARE_SIZE / width
-        svg.scale(new)
+        if viewBox is not None:
+            width = float(viewBox.split()[2])
+        elif svg.width is not None:
+            width = svg.width
+        else:
+            SVG_PIECES[css][symbol] = ""
+            return
 
-    head = """<g id="%s-%s">""" % (pychess.COLOR_NAMES[piece.color], piece_name)
-    tail = """</g>"""
+        if width != SQUARE_SIZE:
+            new = SQUARE_SIZE / width
+            svg.scale(new)
 
-    SVG_PIECES[css][symbol] = "%s%s%s" % (head, tostring(svg.root), tail)
+        head = """<g id="%s-%s">""" % (pychess.COLOR_NAMES[piece.color], piece_name)
+        tail = """</g>"""
+
+        SVG_PIECES[css][symbol] = "%s%s%s" % (head, tostring(svg.root), tail)
 
 
 class SvgWrapper(str):

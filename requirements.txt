@@ -1,4 +1,5 @@
 aiohttp==3.11.18
 cairoSVG==2.8.2
 lxml==5.4.0
+pychess-data==0.1.0
 svgutils @ git+https://github.com/gbtami/svg_utils@master
